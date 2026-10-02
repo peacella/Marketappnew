@@ -1,0 +1,620 @@
+/**
+ * Firestore Seed Script for P-ELLA Market
+ *
+ * This script seeds your Firestore database with 28 realistic Nigerian food products.
+ *
+ * HOW TO RUN:
+ * 1. Install dependencies: npm install
+ * 2. Set up your Firebase project and download the service account key JSON file
+ * 3. Place the service account key file in the project root as 'serviceAccountKey.json'
+ * 4. Make sure your .env file has FIREBASE_PROJECT_ID set
+ * 5. Run: node scripts/seedFirestore.js
+ *
+ * The script will batch-write all products to the 'products' collection in Firestore.
+ */
+
+import { initializeApp, cert } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const serviceAccountPath = join(__dirname, "..", "serviceAccountKey.json");
+
+let serviceAccount;
+try {
+  const raw = readFileSync(serviceAccountPath, "utf8");
+  serviceAccount = JSON.parse(raw);
+} catch (err) {
+  console.error("ERROR: Could not read serviceAccountKey.json");
+  console.error(
+    "Please download your Firebase service account key and place it at:",
+  );
+  console.error("  " + serviceAccountPath);
+  console.error("");
+  console.error("To get your service account key:");
+  console.error(
+    "  1. Go to Firebase Console > Project Settings > Service Accounts",
+  );
+  console.error('  2. Click "Generate new private key"');
+  console.error(
+    "  3. Save the JSON file as serviceAccountKey.json in the project root",
+  );
+  process.exit(1);
+}
+
+const projectId = process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id;
+
+initializeApp({
+  credential: cert(serviceAccount),
+  projectId,
+});
+
+const db = getFirestore();
+
+const seedProducts = [
+  {
+    name: "Roma Tomatoes (500g)",
+    description:
+      "Fresh, juicy Roma tomatoes perfect for stews, sauces, and salads. Grown locally without harmful pesticides.",
+    price: 1500,
+    category: "Fruits & Vegetables",
+    image:
+      "https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400&h=400&fit=crop",
+    ],
+    stock: 50,
+    featured: true,
+    unit: "per pack",
+    rating: 4.5,
+    reviewCount: 32,
+  },
+  {
+    name: "Ugu Leaf (Fluted Pumpkin) Bunch",
+    description:
+      "Fresh Ugu leaves, rich in iron and essential nutrients. Perfect for soups and stews.",
+    price: 800,
+    category: "Fruits & Vegetables",
+    image:
+      "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop",
+    ],
+    stock: 30,
+    featured: false,
+    unit: "per bunch",
+    rating: 4.3,
+    reviewCount: 18,
+  },
+  {
+    name: "Sweet Potatoes (1kg)",
+    description:
+      "Nutritious sweet potatoes, great for boiling, frying, or baking. Naturally sweet and delicious.",
+    price: 1200,
+    category: "Fruits & Vegetables",
+    image:
+      "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400&h=400&fit=crop",
+    ],
+    stock: 45,
+    featured: false,
+    unit: "per kg",
+    rating: 4.6,
+    reviewCount: 27,
+  },
+  {
+    name: "Golden Penny Semolina 1kg",
+    description:
+      "Premium quality semolina flour for making swallow. Smooth texture, perfect consistency every time.",
+    price: 1800,
+    category: "Grains & Staples",
+    image:
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=400&fit=crop",
+    ],
+    stock: 60,
+    featured: true,
+    unit: "per pack",
+    rating: 4.8,
+    reviewCount: 54,
+  },
+  {
+    name: "Ewa Agoyin Beans (500g)",
+    description:
+      "Premium honey beans, perfect for making Ewa Agoyin. Cooks fast and has a naturally sweet taste.",
+    price: 2200,
+    category: "Grains & Staples",
+    image:
+      "https://images.unsplash.com/photo-1585996886830-c0ce097e3049?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1585996886830-c0ce097e3049?w=400&h=400&fit=crop",
+    ],
+    stock: 35,
+    featured: false,
+    unit: "per pack",
+    rating: 4.4,
+    reviewCount: 21,
+  },
+  {
+    name: "Ofada Rice (2kg)",
+    description:
+      "Locally grown Ofada rice with its distinctive aroma and taste. Perfect for traditional Nigerian meals.",
+    price: 4500,
+    category: "Grains & Staples",
+    image:
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop",
+    ],
+    stock: 25,
+    featured: true,
+    unit: "per bag",
+    rating: 4.7,
+    reviewCount: 43,
+  },
+  {
+    name: "Indomie Chicken Noodles 70g (Pack of 40)",
+    description:
+      "Nigeria's favorite instant noodles. Quick to cook, delicious chicken flavor the whole family loves.",
+    price: 8500,
+    category: "Grains & Staples",
+    image:
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=400&fit=crop",
+    ],
+    stock: 100,
+    featured: true,
+    unit: "per carton",
+    rating: 4.9,
+    reviewCount: 128,
+  },
+  {
+    name: "Coca-Cola 35cl (Pack of 12)",
+    description:
+      "Ice-cold Coca-Cola, the perfect refreshment. Great for parties, gatherings, or personal enjoyment.",
+    price: 3600,
+    category: "Beverages",
+    image:
+      "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=400&fit=crop",
+    ],
+    stock: 80,
+    featured: false,
+    unit: "per pack",
+    rating: 4.5,
+    reviewCount: 67,
+  },
+  {
+    name: "Peak Full Cream Milk Powder 400g",
+    description:
+      "Rich and creamy Peak milk powder. Perfect for tea, coffee, cereals, and baking. Fortified with vitamins.",
+    price: 2800,
+    category: "Dairy & Eggs",
+    image:
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
+    ],
+    stock: 55,
+    featured: true,
+    unit: "per tin",
+    rating: 4.6,
+    reviewCount: 89,
+  },
+  {
+    name: "Fresh Farm Eggs (Tray of 30)",
+    description:
+      "Farm-fresh eggs from free-range chickens. Rich in protein and essential nutrients for the family.",
+    price: 4200,
+    category: "Dairy & Eggs",
+    image:
+      "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&h=400&fit=crop",
+    ],
+    stock: 40,
+    featured: false,
+    unit: "per tray",
+    rating: 4.7,
+    reviewCount: 56,
+  },
+  {
+    name: "Titus Sardines in Tomato Sauce",
+    description:
+      "Premium quality sardines packed in rich tomato sauce. High in protein and omega-3 fatty acids.",
+    price: 1200,
+    category: "Condiments & Spices",
+    image:
+      "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop",
+    ],
+    stock: 70,
+    featured: false,
+    unit: "per tin",
+    rating: 4.3,
+    reviewCount: 34,
+  },
+  {
+    name: "Maggi Coconut Seasoning (Pack of 12)",
+    description:
+      "Authentic coconut seasoning cubes for that perfect Nigerian taste. Essential for soups and stews.",
+    price: 1800,
+    category: "Condiments & Spices",
+    image:
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=400&fit=crop",
+    ],
+    stock: 90,
+    featured: false,
+    unit: "per pack",
+    rating: 4.4,
+    reviewCount: 45,
+  },
+  {
+    name: "Dried Groundnut (500g)",
+    description:
+      "Roasted groundnuts, lightly salted and perfectly crunchy. A healthy snack for any time of day.",
+    price: 1500,
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1567892737950-30c4db37cd89?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1567892737950-30c4db37cd89?w=400&h=400&fit=crop",
+    ],
+    stock: 65,
+    featured: false,
+    unit: "per pack",
+    rating: 4.5,
+    reviewCount: 38,
+  },
+  {
+    name: "Plantain Chips (200g)",
+    description:
+      "Crispy, golden plantain chips made from ripe plantains. Lightly salted for the perfect crunch.",
+    price: 1000,
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop",
+    ],
+    stock: 45,
+    featured: true,
+    unit: "per pack",
+    rating: 4.6,
+    reviewCount: 52,
+  },
+  {
+    name: "Frozen Chicken Wings (1kg)",
+    description:
+      "Premium frozen chicken wings, cleaned and ready to cook. Perfect for grilling, frying, or stewing.",
+    price: 3500,
+    category: "Frozen Foods",
+    image:
+      "https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=400&fit=crop",
+    ],
+    stock: 30,
+    featured: false,
+    unit: "per pack",
+    rating: 4.4,
+    reviewCount: 29,
+  },
+  {
+    name: "Frozen Croaker Fish (1kg)",
+    description:
+      "Freshly frozen croaker fish, cleaned and scaled. Perfect for pepper soup, frying, or grilling.",
+    price: 4000,
+    category: "Frozen Foods",
+    image:
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=400&fit=crop",
+    ],
+    stock: 20,
+    featured: true,
+    unit: "per pack",
+    rating: 4.5,
+    reviewCount: 33,
+  },
+  {
+    name: "Zobo Drink (1L)",
+    description:
+      "Refreshing hibiscus drink, naturally brewed with ginger and spices. No artificial preservatives.",
+    price: 1500,
+    category: "Beverages",
+    image:
+      "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop",
+    ],
+    stock: 25,
+    featured: false,
+    unit: "per bottle",
+    rating: 4.3,
+    reviewCount: 19,
+  },
+  {
+    name: "Fura da Nono (500g)",
+    description:
+      "Traditional millet balls with fermented milk. A nutritious Northern Nigerian delicacy.",
+    price: 2000,
+    category: "Dairy & Eggs",
+    image:
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
+    ],
+    stock: 15,
+    featured: false,
+    unit: "per pack",
+    rating: 4.2,
+    reviewCount: 12,
+  },
+  {
+    name: "Palm Oil (1L)",
+    description:
+      "Pure, unrefined red palm oil. Rich in vitamins and perfect for traditional Nigerian cooking.",
+    price: 2500,
+    category: "Condiments & Spices",
+    image:
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop",
+    ],
+    stock: 40,
+    featured: true,
+    unit: "per bottle",
+    rating: 4.7,
+    reviewCount: 61,
+  },
+  {
+    name: "Suya Spice Mix (200g)",
+    description:
+      "Authentic suya spice blend with groundnuts, ginger, and peppers. Just add to your meat and grill.",
+    price: 1200,
+    category: "Condiments & Spices",
+    image:
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=400&fit=crop",
+    ],
+    stock: 50,
+    featured: false,
+    unit: "per pack",
+    rating: 4.6,
+    reviewCount: 44,
+  },
+  {
+    name: "Chin Chin (300g)",
+    description:
+      "Crunchy, sweet chin chin snacks. Perfect for parties, road trips, or as a quick snack.",
+    price: 1800,
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop",
+    ],
+    stock: 35,
+    featured: false,
+    unit: "per pack",
+    rating: 4.4,
+    reviewCount: 26,
+  },
+  {
+    name: "Orange Juice (1L)",
+    description:
+      "100% pure orange juice, no added sugar. Fresh-squeezed taste packed with vitamin C.",
+    price: 2200,
+    category: "Beverages",
+    image:
+      "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=400&fit=crop",
+    ],
+    stock: 30,
+    featured: false,
+    unit: "per bottle",
+    rating: 4.5,
+    reviewCount: 31,
+  },
+  {
+    name: "Frozen Turkey (1.5kg)",
+    description:
+      "Whole frozen turkey, cleaned and ready to roast. Perfect for special occasions and celebrations.",
+    price: 8500,
+    category: "Frozen Foods",
+    image:
+      "https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=400&fit=crop",
+    ],
+    stock: 15,
+    featured: true,
+    unit: "per bird",
+    rating: 4.8,
+    reviewCount: 22,
+  },
+  {
+    name: "Garri (White) 2kg",
+    description:
+      "High-quality white garri, finely processed and stone-free. Perfect for making eba.",
+    price: 2800,
+    category: "Grains & Staples",
+    image:
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop",
+    ],
+    stock: 55,
+    featured: false,
+    unit: "per bag",
+    rating: 4.5,
+    reviewCount: 48,
+  },
+  {
+    name: "Honey (500ml)",
+    description:
+      "Pure, natural honey from local beekeepers. No additives or preservatives. Perfect sweetener.",
+    price: 3500,
+    category: "Condiments & Spices",
+    image:
+      "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop",
+    ],
+    stock: 25,
+    featured: false,
+    unit: "per bottle",
+    rating: 4.7,
+    reviewCount: 37,
+  },
+  {
+    name: "Crayfish (200g)",
+    description:
+      "Dried and ground crayfish for authentic Nigerian flavor. Essential for soups and stews.",
+    price: 2000,
+    category: "Condiments & Spices",
+    image:
+      "https://images.unsplash.com/photo-1535140728325-a4d3707eee61?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1535140728325-a4d3707eee61?w=400&h=400&fit=crop",
+    ],
+    stock: 40,
+    featured: false,
+    unit: "per pack",
+    rating: 4.4,
+    reviewCount: 28,
+  },
+  {
+    name: "Butter (250g)",
+    description:
+      "Creamy, rich butter perfect for baking, cooking, and spreading. Made from fresh cow's milk.",
+    price: 2500,
+    category: "Dairy & Eggs",
+    image:
+      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=400&fit=crop",
+    ],
+    stock: 35,
+    featured: false,
+    unit: "per pack",
+    rating: 4.5,
+    reviewCount: 41,
+  },
+  {
+    name: "Puff Puff Mix (500g)",
+    description:
+      "Ready-to-cook puff puff mix. Just add water, yeast, and fry. Makes perfect golden puff puff.",
+    price: 1000,
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop",
+    ],
+    stock: 60,
+    featured: false,
+    unit: "per pack",
+    rating: 4.3,
+    reviewCount: 24,
+  },
+  {
+    name: "Frozen Mixed Vegetables (500g)",
+    description:
+      "Pre-cut mix of carrots, green beans, and peas. Flash-frozen to lock in freshness and nutrients.",
+    price: 1800,
+    category: "Frozen Foods",
+    image:
+      "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=400&fit=crop",
+    ],
+    stock: 30,
+    featured: false,
+    unit: "per pack",
+    rating: 4.4,
+    reviewCount: 17,
+  },
+  {
+    name: "Mango Juice (1L)",
+    description:
+      "Tropical mango juice bursting with flavor. Made from real mangoes, no artificial flavors.",
+    price: 2000,
+    category: "Beverages",
+    image:
+      "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=400&fit=crop",
+    ],
+    stock: 28,
+    featured: false,
+    unit: "per bottle",
+    rating: 4.6,
+    reviewCount: 23,
+  },
+  {
+    name: "Smoked Catfish (500g)",
+    description:
+      "Traditional smoked catfish, perfect for soups and stews. Rich, smoky flavor that enhances any dish.",
+    price: 3800,
+    category: "Frozen Foods",
+    image:
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=400&fit=crop",
+    ],
+    stock: 18,
+    featured: true,
+    unit: "per pack",
+    rating: 4.7,
+    reviewCount: 35,
+  },
+];
+
+async function seedDatabase() {
+  console.log("Starting Firestore seed...");
+  console.log(`Project: ${projectId}`);
+  console.log(`Products to seed: ${seedProducts.length}`);
+
+  const batchSize = 500;
+  let seeded = 0;
+
+  for (let i = 0; i < seedProducts.length; i += batchSize) {
+    const batch = db.batch();
+    const chunk = seedProducts.slice(i, i + batchSize);
+
+    for (const product of chunk) {
+      const docRef = db.collection("products").doc();
+      batch.set(docRef, {
+        ...product,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
+    seeded += chunk.length;
+    console.log(`Seeded ${seeded}/${seedProducts.length} products...`);
+  }
+
+  console.log(`\nDone! Successfully seeded ${seeded} products to Firestore.`);
+  console.log("Your P-ELLA Market database is ready!");
+}
+
+seedDatabase().catch((err) => {
+  console.error("Seeding failed:", err);
+  process.exit(1);
+});

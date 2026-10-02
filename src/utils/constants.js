@@ -1,0 +1,31 @@
+export const CATEGORIES = [
+  'All',
+  'Fruits & Vegetables',
+  'Grains & Staples',
+  'Beverages',
+  'Snacks',
+  'Dairy & Eggs',
+  'Condiments & Spices',
+  'Frozen Foods',
+];
+
+export const CATEGORY_ICONS = {
+  'Fruits & Vegetables': '🥬',
+  'Grains & Staples': '🌾',
+  'Beverages': '🥤',
+  'Snacks': '🍿',
+  'Dairy & Eggs': '🥛',
+  'Condiments & Spices': '🌶️',
+  'Frozen Foods': '🧊',
+};
+
+export const NIGERIAN_STATES = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue',
+  'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu',
+  'FCT - Abuja', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina',
+  'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo',
+  'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
+];
+
+export const DELIVERY_FEE = 1000;
+export const FREE_DELIVERY_THRESHOLD = 15000;

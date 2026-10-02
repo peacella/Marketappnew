@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>P-ELLA Market | African Food & Essentials</title>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#"><b>P-ELLA</b> Market</a>
+      <nav>
+        <a href="#shop">Shop</a><a href="#about">About</a
+        ><button id="cartBtn">Cart <span id="cartCount">0</span></button>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">AFRICAN FOOD & ESSENTIALS</p>
+          <h1>Authentic African products, delivered with care.</h1>
+          <p>
+            Shop trusted foodstuff and natural essentials from P-ELLA Market.
+          </p>
+          <a class="primary" href="#shop">Shop now</a>
+        </div>
+        <div class="heroCard">
+          <span>FRESH PICKS</span><strong>Made for home & export</strong
+          ><small>Quality African products in one place.</small>
+        </div>
+      </section>
+      <section id="shop">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">OUR STORE</p>
+            <h2>Shop products</h2>
+          </div>
+          <select id="filter">
+            <option value="all">All products</option>
+            <option value="food">Foodstuff</option>
+            <option value="natural">Natural essentials</option>
+          </select>
+        </div>
+        <div id="products" class="grid"></div>
+      </section>
+      <section id="about" class="about">
+        <h2>Why P-ELLA Market?</h2>
+        <p>
+          We make it easier to access selected African foodstuff and natural
+          products with a simple, convenient shopping experience.
+        </p>
+      </section>
+    </main>
+    <div id="cartPanel" class="panel">
+      <div id="overlay"></div>
+      <aside>
+        <div class="head">
+          <h2>Your cart</h2>
+          <button id="closeCart">×</button>
+        </div>
+        <div id="items"></div>
+        <div class="total"><span>Total</span><b id="total">₦0</b></div>
+        <button id="checkout" class="primary full">Proceed to checkout</button>
+      </aside>
+    </div>
+    <div id="modal" class="modal hidden">
+      <div class="modalCard">
+        <button id="closeModal">×</button>
+        <p class="eyebrow">CHECKOUT</p>
+        <h2>Complete your order</h2>
+        <form id="form">
+          <label>Full name<input id="name" required /></label
+          ><label>Email<input id="email" type="email" required /></label
+          ><label
+            >Delivery address<textarea id="address" required></textarea>
+          </label>
+          <div class="total">
+            <span>Order total</span><b id="checkoutTotal">₦0</b>
+          </div>
+          <button class="primary full">Place order</button>
+        </form>
+        <p id="message"></p>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
