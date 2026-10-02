@@ -1,18 +1,18 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
-import { ToastProvider } from './components/ui/Toast';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import CartDrawer from './components/ui/CartDrawer';
-import Home from './pages/Home';
-import Shop from './pages/Shop';
-import ProductDetail from './pages/ProductDetail';
-import Checkout from './pages/Checkout';
-import OrderSuccess from './pages/OrderSuccess';
-import Account from './pages/Account';
-import NotFound from './pages/NotFound';
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+import { ToastProvider } from "./components/ui/Toast";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import CartDrawer from "./components/ui/CartDrawer";
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import Account from "./pages/Account";
+import NotFound from "./pages/NotFound";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -34,7 +34,7 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relSplatPath: true }}>
       <ToastProvider>
         <AuthProvider>
           <CartProvider>

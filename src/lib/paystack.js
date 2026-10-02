@@ -18,6 +18,7 @@ export const initializePayment = async ({
   onClose,
 }) => {
   await loadPaystackScript();
+
   const handler = window.PaystackPop.setup({
     key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
     email,
@@ -29,8 +30,12 @@ export const initializePayment = async ({
         { display_name: "Shop", variable_name: "shop", value: "P-ELLA Market" },
       ],
     },
-    callback: onSuccess,
-    onClose,
+    callback: (response) => {
+      onSuccess(response);
+    },
+    onClose: () => {
+      if (onClose) onClose();
+    },
   });
   handler.openIframe();
 };
