@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const { handler: sendConfirmation } = require("./send-confirmation");
 
 if (!admin.apps?.length) {
   admin.initializeApp({
@@ -64,8 +65,8 @@ exports.handler = async (event, context) => {
       userId,
       items: cartItems,
       shipping,
-      subtotal: total - (total >= 15000 ? 0 : 1000),
-      deliveryFee: total >= 15000 ? 0 : 1000,
+      subtotal: total - (total >= 15000 ? 0 : 100),
+      deliveryFee: total >= 15000 ? 0 : 100,
       total,
       paystackReference: reference,
       status: "paid",
@@ -75,11 +76,9 @@ exports.handler = async (event, context) => {
     await db.collection("orders").doc(orderId).set(orderData);
 
     try {
-      await fetch(
-        `${process.env.VITE_APP_URL}/.netlify/functions/send-confirmation`,
+      const emailRes = await sendConfirmation(
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          httpMethod: "POST",
           body: JSON.stringify({
             to: shipping.email,
             orderId,
@@ -88,7 +87,9 @@ exports.handler = async (event, context) => {
             shipping,
           }),
         },
+        {},
       );
+      console.log("Confirmation email status:", emailRes.statusCode, emailRes.body);
     } catch (emailErr) {
       console.log("Email sending failed:", emailErr.message);
     }

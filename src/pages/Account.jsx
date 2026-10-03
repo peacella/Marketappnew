@@ -43,7 +43,7 @@ const Account = () => {
         const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
         setOrders(data);
       } catch (err) {
-        // Error
+        console.error('Failed to load orders:', err);
       } finally {
         setOrdersLoading(false);
       }

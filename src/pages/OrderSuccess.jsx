@@ -6,6 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { formatCurrency } from '../utils/formatCurrency';
 import Button from '../components/ui/Button';
+import { MailSearch } from 'lucide-react';
 
 const OrderSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -94,9 +95,19 @@ const OrderSuccess = () => {
           Your order <span className="font-bold text-brand-orange">{orderId}</span> has been placed successfully.
         </p>
         {order?.shipping?.email && (
-          <p className="text-brand-muted mb-8">
-            We've sent a confirmation email to <span className="font-medium">{order.shipping.email}</span>.
-          </p>
+          <>
+            <p className="text-brand-muted mb-3">
+              We've sent a confirmation email to <span className="font-medium">{order.shipping.email}</span>.
+            </p>
+            <div className="flex items-start justify-center gap-2 max-w-md mx-auto mb-8 rounded-xl bg-brand-cream-dark/60 px-4 py-3 text-left">
+              <MailSearch size={18} className="text-brand-orange shrink-0 mt-0.5" />
+              <p className="text-sm text-brand-muted">
+                <span className="font-medium text-brand-charcoal">Can't find it?</span> New senders sometimes land
+                in spam or promotions — please check those folders and mark us as "Not spam" so future order
+                updates reach your inbox.
+              </p>
+            </div>
+          </>
         )}
 
         {order && (
