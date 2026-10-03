@@ -1,11 +1,11 @@
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 
-if (!admin.apps.length) {
+if (!admin.apps?.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     }),
   });
 }
@@ -13,15 +13,23 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 exports.handler = async (event, context) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
   }
 
   try {
-    const { reference, cartItems, shipping, total, userId } = JSON.parse(event.body);
+    const { reference, cartItems, shipping, total, userId } = JSON.parse(
+      event.body,
+    );
 
     if (!reference || !cartItems || !shipping || !total || !userId) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing required fields" }),
+      };
     }
 
     const paystackResponse = await fetch(
@@ -30,17 +38,23 @@ exports.handler = async (event, context) => {
         headers: {
           Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         },
-      }
+      },
     );
 
     const paystackData = await paystackResponse.json();
 
-    if (!paystackData.status || paystackData.data.status !== 'success') {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Payment verification failed' }) };
+    if (!paystackData.status || paystackData.data.status !== "success") {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Payment verification failed" }),
+      };
     }
 
     if (paystackData.data.amount !== total * 100) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Payment amount mismatch' }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Payment amount mismatch" }),
+      };
     }
 
     const orderId = `PELLA-${Date.now().toString(36).toUpperCase().slice(-4)}`;
@@ -54,26 +68,29 @@ exports.handler = async (event, context) => {
       deliveryFee: total >= 15000 ? 0 : 1000,
       total,
       paystackReference: reference,
-      status: 'paid',
+      status: "paid",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    await db.collection('orders').doc(orderId).set(orderData);
+    await db.collection("orders").doc(orderId).set(orderData);
 
     try {
-      await fetch(`${process.env.VITE_APP_URL}/.netlify/functions/send-confirmation`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: shipping.email,
-          orderId,
-          items: cartItems,
-          total,
-          shipping,
-        }),
-      });
+      await fetch(
+        `${process.env.VITE_APP_URL}/.netlify/functions/send-confirmation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: shipping.email,
+            orderId,
+            items: cartItems,
+            total,
+            shipping,
+          }),
+        },
+      );
     } catch (emailErr) {
-      console.log('Email sending failed:', emailErr.message);
+      console.log("Email sending failed:", emailErr.message);
     }
 
     return {
@@ -81,10 +98,10 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ success: true, orderId }),
     };
   } catch (error) {
-    console.error('Process order error:', error);
+    console.error("Process order error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      body: JSON.stringify({ error: "Internal server error" }),
     };
   }
 };
