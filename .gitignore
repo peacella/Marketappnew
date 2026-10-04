@@ -8,3 +8,5 @@ dist
 serviceAccountKey.json
 # Local Netlify folder
 .netlify
+# Firebase Android config (public repo: injected via CI secrets, never committed)
+**/google-services.json

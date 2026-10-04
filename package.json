@@ -10,6 +10,12 @@
     "seed": "node scripts/seedFirestore.js"
   },
   "dependencies": {
+    "@capacitor-firebase/authentication": "^8.5.2",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/network": "^8.0.1",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "firebase": "^10.13.0",
@@ -22,6 +28,7 @@
     "tailwind-merge": "^2.5.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.45",

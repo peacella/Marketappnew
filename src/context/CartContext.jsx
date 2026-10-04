@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from './AuthContext';
 
@@ -40,6 +40,34 @@ export const CartProvider = ({ children }) => {
       setDoc(cartRef, { cart: items }, { merge: true }).catch(() => {});
     }
   }, [items, user]);
+
+  // Cross-device sync (website <-> Android app): on sign-in, merge the
+  // cloud cart into the local one. Cloud quantities win on conflict.
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        const cloudCart = snap.data()?.cart;
+        if (!Array.isArray(cloudCart) || cloudCart.length === 0) return;
+        const valid = cloudCart.filter(
+          (c) => c && c.product && typeof c.product.id !== 'undefined' && Number.isFinite(c.quantity)
+        );
+        if (valid.length === 0) return;
+        setItems((prev) => {
+          const merged = [...prev];
+          for (const c of valid) {
+            const i = merged.findIndex((p) => p.product.id === c.product.id);
+            if (i >= 0) merged[i] = c;
+            else merged.push(c);
+          }
+          return merged;
+        });
+      } catch {
+        // Offline or unreadable: keep the local cart
+      }
+    })();
+  }, [user]);
 
   const addToCart = useCallback((product) => {
     setItems((prev) => {
