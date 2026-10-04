@@ -1,5 +1,9 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { Capacitor } from "@capacitor/core";
+import { App as CapApp } from "@capacitor/app";
+import { useOnlineStatus } from "./hooks/useOnlineStatus";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ToastProvider } from "./components/ui/Toast";
@@ -32,6 +36,38 @@ const AnimatedRoutes = () => {
   );
 };
 
+// Native-only behaviors + offline banner. Must live inside <BrowserRouter>.
+const AppEffects = () => {
+  const online = useOnlineStatus();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Android hardware back button: go back in-app, exit the app on Home
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return undefined;
+    let handle;
+    CapApp.addListener('backButton', () => {
+      if (location.pathname === '/') {
+        CapApp.exitApp();
+      } else {
+        navigate(-1);
+      }
+    }).then((h) => {
+      handle = h;
+    });
+    return () => {
+      if (handle) handle.remove();
+    };
+  }, [location.pathname, navigate]);
+
+  if (online) return null;
+  return (
+    <div className="fixed bottom-0 inset-x-0 z-[70] bg-brand-charcoal text-white text-center text-xs sm:text-sm px-4 py-2.5">
+      You&apos;re offline — showing your saved cart and products. Checkout needs an internet connection.
+    </div>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relSplatPath: true }}>
@@ -45,6 +81,7 @@ function App() {
               </main>
               <Footer />
               <CartDrawer />
+              <AppEffects />
             </div>
           </CartProvider>
         </AuthProvider>

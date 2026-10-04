@@ -5,6 +5,7 @@ import { Lock, Loader2 } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../components/ui/Toast';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { initializePayment } from '../lib/paystack';
 import { formatCurrency } from '../utils/formatCurrency';
 import { NIGERIAN_STATES, DELIVERY_FEE, FREE_DELIVERY_THRESHOLD } from '../utils/constants';
@@ -15,6 +16,7 @@ const Checkout = () => {
   const { items, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const online = useOnlineStatus();
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
   const [form, setForm] = useState({
@@ -45,6 +47,10 @@ const Checkout = () => {
   };
 
   const handlePay = () => {
+    if (!online) {
+      showToast('You appear to be offline. Reconnect to complete payment.', 'error');
+      return;
+    }
     const error = validate();
     if (error) {
       showToast(error, 'error');

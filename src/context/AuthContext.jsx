@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import {
+  GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithCredential,
   signInWithPopup,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../lib/firebase';
 
@@ -50,6 +54,16 @@ export const AuthProvider = ({ children }) => {
 
   const signInWithGoogle = async () => {
     try {
+      // Native app: use the system Google account sheet (WebView popups don't work in-app)
+      if (Capacitor.isNativePlatform()) {
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        const idToken = result?.credential?.idToken;
+        if (!idToken) {
+          throw new Error('Google sign-in did not return an ID token.');
+        }
+        const userCred = await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+        return userCred.user;
+      }
       const result = await signInWithPopup(auth, googleProvider);
       return result.user;
     } catch (error) {
@@ -59,6 +73,14 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
+      // Clear the native Google session too, otherwise re-sign-in is silent/stale
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await FirebaseAuthentication.signOut();
+        } catch {
+          // Non-fatal: Firebase web sign-out below is the source of truth
+        }
+      }
       await firebaseSignOut(auth);
     } catch (error) {
       throw error;
