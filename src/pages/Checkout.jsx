@@ -100,6 +100,10 @@ const Checkout = () => {
         setProcessing(false);
         showToast('Payment cancelled', 'info');
       },
+    }).catch((err) => {
+      // Startup failures (e.g. bad payment config): never leave the spinner stuck
+      setProcessing(false);
+      showToast(err?.message || 'Could not start payment. Please try again.', 'error');
     });
   };
 
