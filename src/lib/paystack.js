@@ -19,8 +19,13 @@ export const initializePayment = async ({
 }) => {
   await loadPaystackScript();
 
+  const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+  if (!publicKey || !publicKey.startsWith('pk_')) {
+    throw new Error('Payment is misconfigured (invalid Paystack public key). Please update the app.');
+  }
+
   const handler = window.PaystackPop.setup({
-    key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+    key: publicKey,
     email,
     amount: amount * 100,
     currency: "NGN",

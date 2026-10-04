@@ -23,17 +23,25 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Capacitor CLI 8 requires Node >= 22
+          node-version: 22
           cache: npm
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          # Capacitor 8 compiles against Java 21 (JDK 17 fails with
+          # "invalid source release: 21")
+          java-version: 21
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # NOTE: the action defaults to installing the obsolete "tools"
+          # package, which no longer exists and fails the run. Install only
+          # what assembleDebug needs (matches compileSdkVersion 36).
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
 
       - name: Install dependencies
         run: npm ci
@@ -48,10 +56,43 @@ jobs:
           fi
           printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
+      - name: Create .env from secrets
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_PAYSTACK_PUBLIC_KEY: ${{ secrets.VITE_PAYSTACK_PUBLIC_KEY }}
+          VITE_FUNCTIONS_URL: ${{ secrets.VITE_FUNCTIONS_URL }}
+        run: |
+          missing=""
+          for v in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID VITE_PAYSTACK_PUBLIC_KEY VITE_FUNCTIONS_URL; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Secrets:$missing. Add them in repo Settings > Secrets and variables > Actions (same values as your local .env)."
+            exit 1
+          fi
+          printf '%s\n' \
+            "VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY" \
+            "VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN" \
+            "VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID" \
+            "VITE_FIREBASE_STORAGE_BUCKET=$VITE_FIREBASE_STORAGE_BUCKET" \
+            "VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID" \
+            "VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID" \
+            "VITE_PAYSTACK_PUBLIC_KEY=$VITE_PAYSTACK_PUBLIC_KEY" \
+            "VITE_FUNCTIONS_URL=$VITE_FUNCTIONS_URL" > .env
+          echo ".env created for build (values come from secrets, never logged)."
+
       - name: Build web app and sync Capacitor
         run: |
           npm run build
           npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
 
       - name: Build debug APK
         working-directory: android

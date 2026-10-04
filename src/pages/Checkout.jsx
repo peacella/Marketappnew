@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Loader2 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../components/ui/Toast';
@@ -63,8 +64,18 @@ const Checkout = () => {
       email: form.email,
       amount: total,
       onSuccess: async (reference) => {
+        // Native app has no local functions: talk to the deployed backend.
+        // (Website uses the relative path and is unaffected.)
+        const functionsBase = Capacitor.isNativePlatform()
+          ? (import.meta.env.VITE_FUNCTIONS_URL || '').replace(/\/$/, '')
+          : '';
+        if (Capacitor.isNativePlatform() && !functionsBase) {
+          showToast('App is misconfigured (missing server URL). Please update the app.', 'error');
+          setProcessing(false);
+          return;
+        }
         try {
-          const response = await fetch('/.netlify/functions/process-order', {
+          const response = await fetch(`${functionsBase}/.netlify/functions/process-order`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -100,6 +111,10 @@ const Checkout = () => {
         setProcessing(false);
         showToast('Payment cancelled', 'info');
       },
+    }).catch((err) => {
+      // Startup failures (e.g. bad payment config): never leave the spinner stuck
+      setProcessing(false);
+      showToast(err?.message || 'Could not start payment. Please try again.', 'error');
     });
   };
 

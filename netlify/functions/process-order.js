@@ -13,10 +13,26 @@ if (!admin.apps?.length) {
 
 const db = admin.firestore();
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 exports.handler = async (event, context) => {
+  // CORS preflight from the Android app (cross-origin JSON POST)
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: CORS_HEADERS,
+      body: "",
+    };
+  }
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
@@ -28,8 +44,9 @@ exports.handler = async (event, context) => {
 
     if (!reference || !cartItems || !shipping || !total || !userId) {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Missing required fields" }),
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Missing required fields" }),
       };
     }
 
@@ -46,15 +63,17 @@ exports.handler = async (event, context) => {
 
     if (!paystackData.status || paystackData.data.status !== "success") {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Payment verification failed" }),
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Payment verification failed" }),
       };
     }
 
     if (paystackData.data.amount !== total * 100) {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Payment amount mismatch" }),
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: "Payment amount mismatch" }),
       };
     }
 
@@ -96,12 +115,14 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ success: true, orderId }),
     };
   } catch (error) {
     console.error("Process order error:", error);
     return {
       statusCode: 500,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ error: "Internal server error" }),
     };
   }

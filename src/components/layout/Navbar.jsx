@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Search, Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../ui/Toast';
 
 const Navbar = () => {
   const { cartCount, openDrawer } = useCart();
   const { user, signInWithGoogle, signOut } = useAuth();
+  const { showToast } = useToast();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +18,8 @@ const Navbar = () => {
     try {
       await signInWithGoogle();
     } catch (err) {
-      // User cancelled or error
+      // Surface the real error (especially native plugin errors) instead of failing silently
+      showToast(err?.message || 'Google sign-in failed. Please try again.', 'error');
     }
   };
 

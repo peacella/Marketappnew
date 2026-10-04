@@ -1,5 +1,11 @@
 {
   "appId": "com.pellamarket.app",
   "appName": "P-ELLA Market",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    }
+  }
 }
