@@ -56,6 +56,34 @@ jobs:
           fi
           printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
 
+      - name: Create .env from secrets
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_PAYSTACK_PUBLIC_KEY: ${{ secrets.VITE_PAYSTACK_PUBLIC_KEY }}
+        run: |
+          missing=""
+          for v in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID VITE_PAYSTACK_PUBLIC_KEY; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Secrets:$missing. Add them in repo Settings > Secrets and variables > Actions (same values as your local .env)."
+            exit 1
+          fi
+          printf '%s\n' \
+            "VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY" \
+            "VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN" \
+            "VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID" \
+            "VITE_FIREBASE_STORAGE_BUCKET=$VITE_FIREBASE_STORAGE_BUCKET" \
+            "VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID" \
+            "VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID" \
+            "VITE_PAYSTACK_PUBLIC_KEY=$VITE_PAYSTACK_PUBLIC_KEY" > .env
+          echo ".env created for build (values come from secrets, never logged)."
+
       - name: Build web app and sync Capacitor
         run: |
           npm run build
