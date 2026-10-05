@@ -37,9 +37,9 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-brand-orange">P-ELLA</span>
-            <span className="text-2xl font-bold text-brand-plum">Market</span>
+          <Link to="/" className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <span className="text-xl sm:text-2xl font-bold text-brand-orange">P-ELLA</span>
+            <span className="hidden sm:inline text-2xl font-bold text-brand-plum">Market</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
